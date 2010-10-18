@@ -23,7 +23,11 @@
          * @brief 글/댓글에 대해서는 nLucene 검색, 그 외 요소에 대해서는 통합검색을 이용.
          */
         function IS() {
-			$searchAPI = "lucene_search_bloc-1.0/SearchBO/";
+			// 테스트 환경 설정 -- 배포시엔 반드시 제거할 것.
+			$searchAPI = "lucene_search_bloc-1.0/PackagingSearchBO/";
+
+			// 배포시 환경 설정 -- 배포시엔 반드시 주석 제거.
+			//$searchAPI = "lucene_search_bloc-1.0/SearchBO/";
 
             // 모듈 설정 읽어오기
             $oModuleModel = &getModel('module');
@@ -54,6 +58,7 @@
             $where = Context::get('where');
             // 검색대상 읽어오기
 			$search_target = Context::get('search_target');
+			if ($search_target == 'tag') $search_target = 'tags';
 			if(!$this->isFieldCorrect($search_target)) $search_target = 'title_content';
 
             // 검색대상 모듈을 적용한 질의어
@@ -134,14 +139,14 @@
             $oModelDocument = &getModel('document');
             
 			$params->serviceName = $service_prefix.'_document';
-            $params->query = $params->query.$params->subquery;
+            $params->query = '('.$params->query.')'.$params->subquery;
 			$params->displayFields = array("id");
 
 			$encodedParams = $this->json_service->encode($params);
 			$searchResult = FileHandler::getRemoteResource($searchUrl."searchByMap", $encodedParams, 3, "POST", "application/json; charset=UTF-8", array(), array());
 
 			// 결과가 유효한지 확인
-			if (!$searchResult) {
+			if (!$searchResult && $searchResult != "null") {
 				$idList = array();
 			} else {
 				$idList = $this->result2idArray($searchResult);
@@ -153,7 +158,7 @@
             } else {
                 $documents = array();
 			}
-   
+
             $searchResult = $this->json_service->decode($searchResult);
             $page_navigation = new PageHandler($searchResult->totalSize, ($searchResult->totalSize) / 30+1, $params->curPage, 30);
 
@@ -179,14 +184,14 @@
 			$encodedParams = $this->json_service->encode($params);
 
             $searchResult = FileHandler::getRemoteResource($searchUrl."searchByMap", $encodedParams, 3, "POST", "application/json; charset=UTF-8", array(), array());
-			
-			if(!$searchResult) {
+	
+			if(!$searchResult && $searchResult != "null") {
 				$idList = array();
 			} else {
 				$idList = $this->result2idArray($searchResult);
 			}
 
-			if (count($idList)!=0) 
+			if (count($idList) > 0) 
 				$comments = $oModelComment->getComments($idList);
             
             $searchResult = $this->json_service->decode($searchResult);
@@ -206,9 +211,11 @@
             $res = $this->json_service->decode($res);
             $resSet = $res->results;
             $answer = array();
-            foreach ($resSet as $aMap) {
-                array_push(&$answer, $aMap->id);
-            }
+			if (count($resSet) > 0) {
+				foreach ($resSet as $aMap) {
+					array_push(&$answer, $aMap->id);
+				}
+			}
             return $answer;
         }
 
@@ -216,7 +223,7 @@
          * @brief module_srl 리스트 및 포함/제외 여부에 따른 조건절을 만듬.
          */
 		function getSubquery($target_mid, $target_mode) {
-			$no_secret = ' AND NOT is_secret:Y AND NOT module_srl:0';
+			$no_secret = ' AND NOT is_secret:yes AND NOT module_srl:0';
             $target_mid = trim($target_mid);
             if ('' == $target_mid) return $no_secret;
             
@@ -248,7 +255,7 @@
 		 *	@brief 검색 대상 필드를 확인
 		 */
 		function isFieldCorrect($fieldname) {
-			$fields = array('title', 'content', 'title_content', 'tag');
+			$fields = array('title', 'content', 'title_content', 'tags');
 			$answer = in_array($fieldname, $fields);
 			return $answer; 
 		}

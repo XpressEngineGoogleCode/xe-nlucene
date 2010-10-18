@@ -74,11 +74,10 @@
      **/
     class luceneDocumentIndexRequest extends luceneIndexRequest {
         var $content = array('content', 'analyzed_no_norms', 'yes', 'with_positions_offsets', 'string');
-        var $tags = array('tags', 'analyzed_no_norms', 'yes', 'with_positions_offsets', 'string');
+        var $tag = array('tags', 'analyzed_no_norms', 'yes', 'with_positions_offsets', 'string');
         var $title = array('title', 'analyzed_no_norms', 'yes', 'with_positions_offsets', 'string');
         var $id = array('id', 'not_analyzed_no_norms', 'yes', 'no', 'string');
 		var $module_srl = array('module_srl', 'not_analyzed', 'yes', 'no', 'string');
-
 		var $is_secret = array('is_secret', 'not_analyzed', 'yes', 'no', 'string');
 
 		/**
@@ -92,14 +91,15 @@
 		 * @brief 색인의 필드별로 분석옵션을 지정한 배열을 리턴
 		 */
         function getIndexOption() {
-            return array($this->content, $this->tags, $this->title, $this->id, $this->module_srl);
+            return array($this->content, $this->tag, $this->title, $this->id, $this->module_srl, $this->is_secret);
         }
 
 		/**
 		 * @brief 색인하기 위한 원문을 얻는 SQL 쿼리 리턴.
 		 */
         function getSQL() {
-            $select =  'select A.content, A.tags, A.title, A.module_srl, A.document_srl as id , A.is_secret ';
+            //$select =  'select A.content, A.tags, A.title, A.module_srl, A.document_srl as id , A.is_secret ';
+            $select =  "select A.content, A.tags, A.title, A.module_srl, A.document_srl as id , replace(A.is_secret, 'Y', 'yes') as is_secret ";
             $from = 'from '.$this->dbinfo->db_table_prefix.'_documents as A ';
             $where = $this->where_tpl[$this->dbinfo->db_type];
 
@@ -127,8 +127,7 @@
         var $content = array('content', 'analyzed_no_norms', 'yes', 'with_positions_offsets', 'string');
         var $id = array('id', 'not_analyzed_no_norms', 'yes', 'no', 'string');
 		var $module_srl = array('module_srl', 'not_analyzed', 'yes', 'no', 'string');
-
-		var $is_secret = array('module_srl', 'not_analyzed', 'yes', 'no', 'string');
+		var $is_secret = array('is_secret', 'not_analyzed', 'yes', 'no', 'string');
 
 		/**
 		 * @brief contructor
@@ -141,14 +140,14 @@
 		 * @brief 색인의 필드별로 분석옵션을 지정한 배열을 리턴
 		 */
         function getIndexOption() {
-            return array($this->content, $this->id, $this->module_srl);
+            return array($this->content, $this->id, $this->module_srl, $this->is_secret);
         }
 
 		/**
 		 * @brief 색인하기 위한 원문을 얻는 SQL 쿼리 리턴.
 		 */
         function getSQL() {
-            $select =  'select A.content, A.module_srl, A.comment_srl as id, A.is_secret ';
+            $select =  "select A.content, A.module_srl, A.comment_srl as id, replace(A.is_secret, 'Y', 'yes') as is_secret ";
             $from = 'from '.$this->dbinfo->db_table_prefix.'_comments as A ';
             $where = $this->where_tpl[$this->dbinfo->db_type];
 
