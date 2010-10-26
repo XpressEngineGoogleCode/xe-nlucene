@@ -23,15 +23,11 @@
          * @brief 글/댓글에 대해서는 nLucene 검색, 그 외 요소에 대해서는 통합검색을 이용.
          */
         function IS() {
-			// 테스트 환경 설정 -- 배포시엔 반드시 제거할 것.
-			$searchAPI = "lucene_search_bloc-1.0/PackagingSearchBO/";
-
-			// 배포시 환경 설정 -- 배포시엔 반드시 주석 제거.
-			//$searchAPI = "lucene_search_bloc-1.0/SearchBO/";
+	    $searchAPI = "lucene_search_bloc-1.0/SearchBO/";
 
             // 모듈 설정 읽어오기
             $oModuleModel = &getModel('module');
-			$config = $oModuleModel->getModuleConfig('lucene');
+	    $config = $oModuleModel->getModuleConfig('lucene');
             $ISconfig = $oModuleModel->getModuleConfig('integration_search');
 						
             // 검색 API 설정
@@ -42,7 +38,7 @@
             Context::set('module_info', unserialize($ISconfig->skin_vars));
             // 템플릿 경로 설정
 			$oISModule = &getModule('integration_search');
-            $this->setTemplatePath($oISModule->module_path."/skins/".$ISconfig->skin."/");
+            $this->setTemplatePath($this->module_path."/skins/".$ISconfig->skin."/");
 			
             // 검색대상 모듈 설정 읽어오기
             $target_mid = $ISconfig->target_module_srl;
@@ -57,9 +53,9 @@
             // 검색범위 읽어오기 
             $where = Context::get('where');
             // 검색대상 읽어오기
-			$search_target = Context::get('search_target');
-			if ($search_target == 'tag') $search_target = 'tags';
-			if(!$this->isFieldCorrect($search_target)) $search_target = 'title_content';
+	    $search_target = Context::get('search_target');
+	    if ($search_target == 'tag') $search_target = 'tags';
+	    if(!$this->isFieldCorrect($search_target)) $search_target = 'title_content';
 
             // 검색대상 모듈을 적용한 질의어
             $query = $this->getSubquery($target_mid, $target_mode); 
@@ -92,7 +88,8 @@
                         $this->setTemplateFile("comment", $page);
                         break;
 
-                    case 'trackback':
+		// 트랙백, 파일 등은 지원할 때까지 제거.
+                    /*case 'trackback':
                         if (!in_array($search_target, array('title', 'url', 'blog_name', 'excerpt'))) $search_title = 'title';
                         Context::set('search_target', $search_target);
                         
@@ -112,14 +109,14 @@
                         $output = $oIS->getFiles($target, array(), $is_keyword, $page, 20);
                         Context::set('output', $output);
                         $this->setTemplateFile("file", $page);
-                        break;
+                        break;*/
 
                     default:
                         $output['document'] = $this->getDocuments($searchUrl, $json_obj, $config->service_name_prefix);
                         $output['comment'] = $this->getComments($searchUrl, $json_obj, $config->service_name_prefix);
-                        $output['trackback'] = array();
-                        $output['multimedia'] = array();
-                        $output['file'] = array();
+                        //$output['trackback'] = array();
+                        //$output['multimedia'] = array();
+                        //$output['file'] = array();
                         
                         Context::set('search_result', $output);
                         $this->setTemplateFile("index", $page);
@@ -140,7 +137,7 @@
             
 			$params->serviceName = $service_prefix.'_document';
             $params->query = '('.$params->query.')'.$params->subquery;
-			$params->displayFields = array("id");
+            $params->displayFields = array("id");
 
 			$encodedParams = $this->json_service->encode($params);
 			$searchResult = FileHandler::getRemoteResource($searchUrl."searchByMap", $encodedParams, 3, "POST", "application/json; charset=UTF-8", array(), array());
@@ -153,10 +150,14 @@
 			}
 
 			// 결과가 1개 이상이어야 글 본문을 요청함.
-            if (count($idList) > 0) {
-                $documents = $oModelDocument->getDocuments($idList);
-            } else {
-                $documents = array();
+			$documents = array();
+            		if (count($idList) > 0) {
+				$tmpDocuments = $oModelDocument->getDocuments($idList, false, false);
+
+				// 받아온 문서 목록을 루씬에서 반환한 순서대로 재배열
+				foreach($idList as $id) {
+					$documents['doc'.$id] = $tmpDocuments[$id];
+				}
 			}
 
             $searchResult = $this->json_service->decode($searchResult);
@@ -174,7 +175,7 @@
          */
 		function getComments($searchUrl, $params, $service_prefix) {
 
-            $params->serviceName = $service_prefix.'_comment';
+        	$params->serviceName = $service_prefix.'_comment';
             $params->fieldName = 'content';
             $params->displayFields = array('id');
 			$params->query = $params->query.$params->subquery;
@@ -191,9 +192,15 @@
 				$idList = $this->result2idArray($searchResult);
 			}
 
-			if (count($idList) > 0) 
-				$comments = $oModelComment->getComments($idList);
-            
+			$comments = array();
+			if (count($idList) > 0) {
+				$tmpComments = $oModelComment->getComments($idList);
+
+				foreach($idList as $id) {
+					$comments['com'.$id] = $tmpComments[$id];
+				}
+			}
+
             $searchResult = $this->json_service->decode($searchResult);
             $page_navigation = new PageHandler($searchResult->totalSize, ($searchResult->totalSize) / 30+1, $params->curPage, 30);
 
@@ -213,11 +220,11 @@
             $answer = array();
 			if (count($resSet) > 0) {
 				foreach ($resSet as $aMap) {
-					array_push(&$answer, $aMap->id);
+					$answer[] = $aMap->id;
 				}
 			}
             return $answer;
-        }
+       }
 
         /**
          * @brief module_srl 리스트 및 포함/제외 여부에 따른 조건절을 만듬.
