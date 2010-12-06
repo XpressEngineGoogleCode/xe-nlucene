@@ -216,7 +216,7 @@
 			}
 
 			$searchResult = $this->json_service->decode($searchResult);
-			$page_navigation = new PageHandler($searchResult->totalSize, ($searchResult->totalSize) / 30+1, $params->curPage, 30);
+			$page_navigation = new PageHandler($searchResult->totalSize, ($searchResult->totalSize) / 30+1, $params->curPage, 10);
 
 			$output->total_count = $searchResult->totalSize - $diff;
 			$output->data = $comments;

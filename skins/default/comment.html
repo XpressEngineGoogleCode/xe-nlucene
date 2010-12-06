@@ -8,9 +8,6 @@
     <ul class="searchResult comment">
     <!--@foreach($output->data as $no => $comment)-->
         <li>
-            <!--@if($comment->thumbnailExists(80))-->
-            <a href="{$comment->getPermanentUrl()}" onclick="window.open(this.href);return false;"><img src="{$comment->getThumbnail(80)}" alt="" width="80" height="80" class="thumb" /></a>
-            <!--@end-->
             <dl>
                 <dt><a href="{$comment->getPermanentUrl()}" onclick="window.open(this.href);return false;">{$comment->getSummary(400)}</a></dt>
             </dl>

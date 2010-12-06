@@ -12,7 +12,7 @@ class luceneController extends lucene {
 	 **/
 	function triggerInsertDocument(&$obj)
 	{
-		$output = $this->doIndexNow('_document');
+		//$output = $this->doIndexNow('_document');
 		return $output;
 	}
 
@@ -21,7 +21,7 @@ class luceneController extends lucene {
 	 **/
 	function triggerInsertComment(&$obj)
 	{
-		$output = $this->doIndexNow('_comment');
+		//$output = $this->doIndexNow('_comment');
 		return $output;
 	}
 
@@ -30,7 +30,7 @@ class luceneController extends lucene {
 	 **/
 	function triggerDeleteDocument(&$obj)
 	{
-		$output = $this->doIndexNow('_document');
+		//$output = $this->doIndexNow('_document');
 		return $output;
 	}
 
@@ -39,7 +39,7 @@ class luceneController extends lucene {
 	 **/
 	function triggerDeleteComment(&$obj)
 	{
-		$output = $this->doIndexNow('_comment');
+		//$output = $this->doIndexNow('_comment');
 		return $output;
 	}
 
