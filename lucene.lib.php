@@ -55,6 +55,9 @@
 			// 증분색인 관련 설정 (현재 적용안함)
 			$reg->increment = 'false';
 			$reg->startDate = date("Y-m-d");
+			
+			// nlucene 1.0.1 지원
+			$reg->pageLength = '2000';
 			$reg->pageLengt = '2000';
 	
 			// 날짜 및 갱신 간격 설정

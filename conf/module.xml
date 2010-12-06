@@ -12,5 +12,6 @@
         <action name="procLuceneAdminInsertConfig" type="controller" />
         <action name="procLuceneAdminInsertSkin" type="controller" />
         <action name="procLuceneAdminInsertServiceConfig" type="controller" />
+		<action name="procLuceneAdminCheckIndicesStatus" type="controller" />
     </actions>
 </module>

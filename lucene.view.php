@@ -23,11 +23,9 @@
 		 * @brief 글/댓글에 대해서는 nLucene 검색, 그 외 요소에 대해서는 통합검색을 이용.
 		 */
 		function IS() {
-			// 테스트 환경 설정 -- 배포시엔 반드시 제거할 것.
-			$searchAPI = "lucene_search_bloc-1.0/PackagingSearchBO/";
-
 			// 배포시 환경 설정 -- 배포시엔 반드시 주석 제거.
-			//$searchAPI = "lucene_search_bloc-1.0/SearchBO/";
+			//$searchAPI = "lucene_search_bloc-1.1/SearchBO/";
+			$searchAPI = "lucene_search_bloc/SearchBO/";
 
 			// 모듈 설정 읽어오기
 			$oModuleModel = &getModel('module');

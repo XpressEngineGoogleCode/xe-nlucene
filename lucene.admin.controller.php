@@ -61,6 +61,30 @@
 			return $this->_procLuceneAdminInsertServiceConfig($repo_path, $renew_interval, $service_name_prefix);
 		}
 
+		function procLuceneAdminCheckIndicesStatus() {
+			
+			$oModuleModel = &getModel('module');
+
+			$config = $oModuleModel->getModuleConfig('lucene');
+
+			$com_request = $config->searchUrl."com_lucene_index_bloc/BLOCConfigManageBO/getIndexStatusInfo";
+			$doc_request = $config->searchUrl."doc_lucene_index_bloc/BLOCConfigManageBO/getIndexStatusInfo";
+
+
+			$regResult_doc = FileHandler::getRemoteResource($doc_request.'?serviceName='.'xe_document', null, 3, "GET", null, array(), array());
+			$regResult_com = FileHandler::getRemoteResource($com_request.'?serviceName='.'xe_comment', null, 3, "GET", null, array(), array());
+
+			$regResult_doc = json_decode($regResult_doc);
+			$regResult_com = json_decode($regResult_com);
+		
+			$this->add('doc_numDocs', $regResult_doc->numDocs);
+			$this->add('doc_lastUpdated', $regResult_doc->lastUpdateDate);
+			$this->add('doc_lastUpdateDuration', $regResult_doc->lastUpdateDuration);
+			$this->add('com_numDocs', $regResult_com->numDocs);
+			$this->add('com_lastUpdated', $regResult_com->lastUpdateDate);
+			$this->add('com_lastUpdateDuration', $regResult_com->lastUpdateDuration);
+		}
+
 		function _procLuceneAdminInsertServiceConfig($repo_path, $renew_interval, $service_name_prefix) {
 			
 			// 설정 읽기
@@ -83,8 +107,8 @@
 
 
 			// 색인 서비스 등록 요청
-			$updateAPI_doc = $searchUrl."doc_lucene_index_bloc-1.0/BLOCConfigManageBO/updateConfig";
-			$updateAPI_com = $searchUrl."com_lucene_index_bloc-1.0/BLOCConfigManageBO/updateConfig";
+			$updateAPI_doc = $searchUrl."doc_lucene_index_bloc/BLOCConfigManageBO/updateConfig";
+			$updateAPI_com = $searchUrl."com_lucene_index_bloc/BLOCConfigManageBO/updateConfig";
 
 			$regResult_doc = FileHandler::getRemoteResource($updateAPI_doc.'?detailMap='.$encoded_doc_reg, null, 3, "GET", null, array(), array());
 			$regResult_com = FileHandler::getRemoteResource($updateAPI_com.'?detailMap='.$encoded_com_reg, null, 3, "GET", null, array(), array());
@@ -92,7 +116,8 @@
 			// 검색 서비스 등록 요청
 			$search_reg->newRepo = $args->repo_path;
 			$encoded_search_reg = urlencode(json_encode2($search_reg));
-			$searchUpdateAPI = $searchUrl."lucene_search_bloc-1.0/SearchConfigManageBO/updateRepo";
+			$searchUpdateAPI = $searchUrl."lucene_search_bloc/SearchConfigManageBO/updateRepo";
+			//$searchUpdateAPI = $searchUrl."lucene_search_bloc-1.1/SearchConfigManageBO/updateRepo";
 
 			$regResult_search = FileHandler::getRemoteResource($searchUpdateAPI.'?params='.$encoded_search_reg, null, 3, "GET", null, array(), array());
 			
