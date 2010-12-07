@@ -27,7 +27,11 @@
 		/**
 		 * @brief 색인요청 내용 중 공통적인 부분을 생성
 		 */
-		function getCommonArgs($service_name_suffix) {  
+		function getCommonArgs($service_name_suffix) {
+
+			$oModuleModel = &getModel('module');
+			$config = $oModuleModel->getModuleConfig('lucene');
+
 			// 댓글 글 공통 내용에 대한 설정
 			$reg->serviceNm = $this->service_name_prefix.$service_name_suffix;
 			$reg->repPath = $this->repo_path;
@@ -47,8 +51,12 @@
 			$reg->jdbcDri  = $this->jdbcdriver[$this->dbinfo->db_type];
 
 			// db 위치가 localhost이면 서버 IP로 대체
-			$db_host = $this->dbinfo->db_hostname;
-			if ($db_host == 'localhost' || $db_host == '127.0.0.1') $db_host = $_SERVER['SERVER_ADDR'];
+			if (!$config->db_server || $config->db_server == '') {
+				$db_host = $this->dbinfo->db_hostname;
+				if ($db_host == 'localhost' || $db_host == '127.0.0.1') $db_host = $_SERVER['SERVER_ADDR'];
+			} else {
+				$db_host = $config->db_server;
+			}
 	
 			$reg->conURI = sprintf($this->conuri_tpl[$this->dbinfo->db_type], $this->dbinfo->db_type, $db_host, $this->dbinfo->db_port, $this->dbinfo->db_database);
 

@@ -38,7 +38,10 @@
 			// 검색모드 (통합검색 / 루씬검색)
 			$uselucene = $config->uselucene;
 			if(!$uselucene) $uselucene = 'false';
+
 			Context::set('uselucene', $uselucene);
+			Context::set('db_server', $config->db_server);
+			Context::set('config', $this->config);
 
 			$this->setTemplateFile("index");
 		}
@@ -59,18 +62,63 @@
 
 			$repo_path = $config->repo_path;
 			if (!$repo_path) $repo_path = '';
-			
+
 			Context::set('service_name_prefix', $service_name_prefix);
 			Context::set('renew_interval', $renew_interval);
 			Context::set('repo_path', $repo_path);
+			Context::set('config', $this->config);
 			$this->setTemplateFile("admin_index");
+		}
+
+		/**
+		 * @brief 현재 색인 상태를 보여줌.
+		 */
+		function dispLuceneAdminIndicesStatus() {
+
+			// 색인 설정이 이루어져 있지 않으면 설정화면으로 넘어감.
+			if (!$this->config->service_name_prefix) {
+				$this->dispLuceneAdminContent();
+				Context::set('act', 'dispLuceneAdminContent');
+				return;
+			}
+			Context::set('config', $this->config);
+
+			$oModuleModel = &getModel('module');
+			$config = $oModuleModel->getModuleConfig('lucene');
+
+			$com_request = $config->searchUrl."com_lucene_index_bloc/BLOCConfigManageBO/getIndexStatusInfo";
+			$doc_request = $config->searchUrl."doc_lucene_index_bloc/BLOCConfigManageBO/getIndexStatusInfo";
+
+			$doc_index_name = $config->service_name_prefix . '_document';
+			$com_index_name = $config->service_name_prefix . '_comment';
+
+			$regResult_doc = FileHandler::getRemoteResource($doc_request.'?serviceName='.$doc_index_name, null, 3, "GET", null, array(), array());
+			$regResult_com = FileHandler::getRemoteResource($com_request.'?serviceName='.$com_index_name, null, 3, "GET", null, array(), array());
+
+			$regResult_doc = json_decode($regResult_doc);
+			$regResult_com = json_decode($regResult_com);
+			
+			if ($regResult_doc) $regResult_doc->exists = 'Y';
+			if ($regResult_com) $regResult_com->exists = 'Y';
+
+			Context::set('doc_status', $regResult_doc);
+			Context::set('com_status', $regResult_com);
+
+		
+			//$this->add('doc_numDocs', $regResult_doc->numDocs);
+			//$this->add('doc_lastUpdated', $regResult_doc->lastUpdateDate);
+			//$this->add('doc_lastUpdateDuration', $regResult_doc->lastUpdateDuration);
+			//$this->add('com_numDocs', $regResult_com->numDocs);
+			//$this->add('com_lastUpdated', $regResult_com->lastUpdateDate);
+			//$this->add('com_lastUpdateDuration', $regResult_com->lastUpdateDuration);
+			$this->setTemplateFile("indices_status");
+
 		}
 
 		/**
 		 * @brief 권한 설정
 		 */
 		function dispLuceneAdminGrantInfo() {
-
 		}
 	}
 

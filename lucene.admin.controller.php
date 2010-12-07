@@ -17,6 +17,7 @@
 			$config = $oModuleModel->getModuleConfig('lucene');
 
 			$config->uselucene = Context::get('uselucene');
+			$config->db_server = Context::get('db_server');
 			$search_url = Context::get('search_url');
 			
 			if(!(substr($search_url, strlen($search_url) - strlen("/")) == "/")) {
@@ -59,30 +60,6 @@
 			$service_name_prefix = Context::get('service_name_prefix');
 
 			return $this->_procLuceneAdminInsertServiceConfig($repo_path, $renew_interval, $service_name_prefix);
-		}
-
-		function procLuceneAdminCheckIndicesStatus() {
-			
-			$oModuleModel = &getModel('module');
-
-			$config = $oModuleModel->getModuleConfig('lucene');
-
-			$com_request = $config->searchUrl."com_lucene_index_bloc/BLOCConfigManageBO/getIndexStatusInfo";
-			$doc_request = $config->searchUrl."doc_lucene_index_bloc/BLOCConfigManageBO/getIndexStatusInfo";
-
-
-			$regResult_doc = FileHandler::getRemoteResource($doc_request.'?serviceName='.'xe_document', null, 3, "GET", null, array(), array());
-			$regResult_com = FileHandler::getRemoteResource($com_request.'?serviceName='.'xe_comment', null, 3, "GET", null, array(), array());
-
-			$regResult_doc = json_decode($regResult_doc);
-			$regResult_com = json_decode($regResult_com);
-		
-			$this->add('doc_numDocs', $regResult_doc->numDocs);
-			$this->add('doc_lastUpdated', $regResult_doc->lastUpdateDate);
-			$this->add('doc_lastUpdateDuration', $regResult_doc->lastUpdateDuration);
-			$this->add('com_numDocs', $regResult_com->numDocs);
-			$this->add('com_lastUpdated', $regResult_com->lastUpdateDate);
-			$this->add('com_lastUpdateDuration', $regResult_com->lastUpdateDuration);
 		}
 
 		function _procLuceneAdminInsertServiceConfig($repo_path, $renew_interval, $service_name_prefix) {

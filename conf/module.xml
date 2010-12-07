@@ -4,14 +4,14 @@
     <permissions />
     <actions>
         <action name="IS" type="view" standalone="true" />
-        <action name="dispLuceneAdminContent" type="view" admin_index="true" />
+        <action name="dispLuceneAdminContent" type="view" />
         <action name="dispLuceneAdminGrantInfo" type="view" />
         <action name="dispLuceneAdminSkinInfo" type="view" />
         <action name="dispLuceneAdminIndex" type="view" />
+        <action name="dispLuceneAdminIndicesStatus" type="view" admin_index="true" />
 
         <action name="procLuceneAdminInsertConfig" type="controller" />
         <action name="procLuceneAdminInsertSkin" type="controller" />
         <action name="procLuceneAdminInsertServiceConfig" type="controller" />
-		<action name="procLuceneAdminCheckIndicesStatus" type="controller" />
     </actions>
 </module>
