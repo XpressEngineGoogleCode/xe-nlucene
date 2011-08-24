@@ -42,6 +42,10 @@
 			Context::set('uselucene', $uselucene);
 			Context::set('db_server', $config->db_server);
 			Context::set('config', $this->config);
+			
+			$security = new Security();				
+			$security->encodeHTML('uselucene');
+			$security->encodeHTML('db_server');
 
 			$this->setTemplateFile("index");
 		}
@@ -67,6 +71,13 @@
 			Context::set('renew_interval', $renew_interval);
 			Context::set('repo_path', $repo_path);
 			Context::set('config', $this->config);
+			
+			$security = new Security();				
+			$security->encodeHTML('service_name_prefix');
+			$security->encodeHTML('renew_interval');
+			$security->encodeHTML('repo_path');
+			$security->encodeHTML('config');
+			
 			$this->setTemplateFile("admin_index");
 		}
 
