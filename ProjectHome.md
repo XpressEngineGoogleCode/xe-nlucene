@@ -1,0 +1,1 @@
+XE nLucene is a search module for [XpressEngine](http://code.google.com/p/xe-core/).
